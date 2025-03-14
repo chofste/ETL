@@ -38,6 +38,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=etl_hs-osnabruck-etl
+            -Dsonar.organization=etl
             -Dsonar.sources=.
             -Dsonar.python.version=3.11
             -Dsonar.language=py,js
