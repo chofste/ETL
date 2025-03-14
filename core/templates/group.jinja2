@@ -1,0 +1,32 @@
+# Group data by: {{ step.group.column }}
+{% set aggs = step.group.aggregation %}
+
+{% if aggs is mapping %}
+# Single aggregation (as a mapping)
+df = df.groupby("{{ step.group.column }}").agg({
+    "{{ aggs.column }}": "{{ aggs.function }}"
+}).reset_index()
+{% elif aggs is sequence %}
+{# Create a list of unique columns to aggregate on #}
+{% set unique_columns = [] %}
+{% for agg in aggs %}
+    {% if agg.column not in unique_columns %}
+        {% set _ = unique_columns.append(agg.column) %}
+    {% endif %}
+{% endfor %}
+
+{# Create the aggregation dictionary: For each column, list all functions #}
+df = df.groupby("{{ step.group.column }}").agg({
+{% for column in unique_columns -%}
+    "{{ column }}": [
+        {% for agg in aggs if agg.column == column -%}
+            "{{ agg.function }}"{% if not loop.last %}, {% endif %}
+        {%- endfor %}
+    ]{% if not loop.last %}, {% endif %}
+{%- endfor %}
+}).reset_index()
+
+# If a MultiIndex is created, flatten the column names:
+df.columns = [col if isinstance(col, str) else "_".join([str(c) for c in col if c]).strip("_")
+              for col in df.columns.values]
+{% endif %}

@@ -1,0 +1,44 @@
+{
+  "steps": [
+    {
+      "step": "read",
+      "source": {
+        "type": "csv",
+        "filepath": "input.csv",
+        "separator": ","
+      }
+    },
+    {
+      "step": "filter",
+      "filter": {
+        "column": "age",
+        "condition": ">",
+        "value": 30
+      }
+    },
+    {
+      "step": "group",
+      "group": {
+        "column": "department",
+        "aggregation": [
+          {
+            "column": "salary",
+            "function": "mean"
+          },
+          {
+            "column": "salary",
+            "function": "sum"
+          }
+        ]
+      }
+    },
+    {
+      "step": "write",
+      "target": {
+        "type": "csv",
+        "filepath": "output.csv",
+        "separator": ","
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Connect to MariaDB and read data
+engine = create_engine("mariadb+pymysql://{{ step.source.user }}:{{ step.source.password }}@{{ step.source.host }}/{{ step.source.database }}")
+df = pd.read_sql("SELECT * FROM {{ step.source.table }}", con=engine)
