@@ -1,0 +1,2 @@
+# Filter data: {{ step.filter.column }} {{ step.filter.condition }} {{ step.filter.value }}
+df = df[df["{{ step.filter.column }}"] {{ step.filter.condition }} {{ step.filter.value }}]
