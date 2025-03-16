@@ -34,6 +34,6 @@ jobs:
 
       - name: Run Flake8 with Reviewdog
         run: |
-          flake8 --format=default | reviewdog -f=flake8 -name="flake8" -reporter=github-pr-check -level=error
+          flake8 --format=default | reviewdog -f=flake8 -name="flake8" -reporter=github-check -level=error
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
