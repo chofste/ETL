@@ -1,0 +1,11 @@
+{# 
+Merge step: Merge branch outputs by joining them on a common key.
+Assumes that each branch output is stored in a variable named result_<branch_id>.
+#}
+# Merge step: merging branches {{ step.merge.sources | join(', ') }} on key "{{ step.merge.on }}" using method "{{ step.merge.how | default('inner') }}"
+{% set first_source = step.merge.sources[0] %}
+merged_df = result_{{ first_source }}
+{% for source in step.merge.sources[1:] %}
+merged_df = merged_df.merge(result_{{ source }}, on="{{ step.merge.on }}", how="{{ step.merge.how | default('inner') }}")
+{% endfor %}
+df = merged_df

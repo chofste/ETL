@@ -1,2 +1,3 @@
-# Merge DataFrames using join
-df = df1.merge(df2, left_on="{{ step.join.source1 }}", right_on="{{ step.join.source2 }}", how="{{ step.join.how }}")
+# Join operation: merging main DataFrame with external dataset from "{{ step.join.with }}" on column "{{ step.join.on }}"
+df_join = pd.read_csv("{{ step.join.with }}", sep="{{ step.join.separator | default(',') }}")
+df = df.merge(df_join, on="{{ step.join.on }}", how="{{ step.join.how | default('inner') }}")

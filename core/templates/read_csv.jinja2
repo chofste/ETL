@@ -1,2 +1,8 @@
-# Read the CSV data source
+{% if config.bulk_processing %}
+# Bulk read CSV data source in chunks of {{ config.batch_size }}
+chunks = pd.read_csv("{{ step.source.filepath }}", sep="{{ step.source.separator }}", chunksize={{ config.batch_size }})
+df = pd.concat(chunk for chunk in chunks)
+{% else %}
+# Read entire CSV data source
 df = pd.read_csv("{{ step.source.filepath }}", sep="{{ step.source.separator }}")
+{% endif %}

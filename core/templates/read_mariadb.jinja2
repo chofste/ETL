@@ -1,3 +1,9 @@
-# Connect to MariaDB and read data
+# Connect to MariaDB and read data from table "{{ step.source.table }}"
 engine = create_engine("mariadb+pymysql://{{ step.source.user }}:{{ step.source.password }}@{{ step.source.host }}/{{ step.source.database }}")
+{% if config.bulk_processing %}
+# Bulk read from MariaDB in chunks of {{ config.batch_size }}
+chunks = pd.read_sql_query("SELECT * FROM {{ step.source.table }}", con=engine, chunksize={{ config.batch_size }})
+df = pd.concat(chunk for chunk in chunks)
+{% else %}
 df = pd.read_sql("SELECT * FROM {{ step.source.table }}", con=engine)
+{% endif %}

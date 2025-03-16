@@ -1,3 +1,3 @@
-# Write the result to a MariaDB table
+# Write the result DataFrame to MariaDB table "{{ step.target.table }}"
 engine_out = create_engine("mariadb+pymysql://{{ step.target.user }}:{{ step.target.password }}@{{ step.target.host }}/{{ step.target.database }}")
-df.to_sql("{{ step.target.table }}", con=engine_out, if_exists="replace", index=False)
+df.to_sql("{{ step.target.table }}", con=engine_out, if_exists="replace", index=False{% if config.bulk_processing %}, chunksize={{ config.batch_size }}{% endif %})
