@@ -2,3 +2,7 @@ fastapi
 uvicorn
 jinja2
 pre-commit
+pandas
+sqlalchemy  #ToDo: check for alternatives
+pytest
+pathlib

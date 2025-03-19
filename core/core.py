@@ -2,7 +2,7 @@ import json
 import textwrap
 import re
 from jinja2 import Environment, FileSystemLoader
-from sqlalchemy import String
+from pathlib import Path
 
 
 def generate_script(config_file: str = "config.json"):
@@ -10,8 +10,11 @@ def generate_script(config_file: str = "config.json"):
     with open(config_file, "r", encoding="utf-8") as f:
         config_data = json.load(f)
 
+    script_dir = Path(__file__).parent
+    template_dir = script_dir / "templates"
+
     # Set up Jinja2 environment with the template directory (e.g., 'templates')
-    env = Environment(loader=FileSystemLoader("templates"))
+    env = Environment(loader=FileSystemLoader(template_dir))
 
     # Mapping of processing steps to template files
     step_templates = {
@@ -28,7 +31,6 @@ def generate_script(config_file: str = "config.json"):
     # Lists to collect code segments and branch function definitions
     code_segments = []
     branch_function_defs = []
-
     # Variable to store branch names from the last split step
     last_split_branch_names = []
 
@@ -43,7 +45,8 @@ import datetime
     steps = config_data.get("steps")
     if steps is None:
         raise KeyError(
-            "The Config must contain 'steps'-Key, der die Verarbeitungsschritte definiert."
+            "The Config must contain 'steps'-Key, "
+            "der die Verarbeitungsschritte definiert."
         )
 
     for step in steps:
@@ -83,18 +86,22 @@ import datetime
                         # Determine the source dataframe variable.
                         if "branch" in target:
                             source_df = "result_" + target["branch"]
-                        elif last_split_branch_names and i < len(last_split_branch_names):
+                        elif last_split_branch_names and i < len(
+                            last_split_branch_names
+                        ):
                             source_df = "result_" + last_split_branch_names[i]
                         else:
                             source_df = "df"
                         template = env.get_template(template_name)
                         rendered = template.render(
-                            step={"target": target, "source_df": source_df}, config=config_file
+                            step={"target": target, "source_df": source_df},
+                            config=config_file,
                         )
                         clean_code = textwrap.dedent(rendered.strip())
                         segment += (
                             "    futures.append(executor.submit("
-                            "(lambda code, src: exec(code, globals(), {{'{0}': src}})), "
+                            "(lambda code, src: exec(code, globals(), "
+                            "{{'{0}': src}})), "
                             "'''{1}''', {0}))\n"
                         ).format(source_df, clean_code)
                     segment += "        future.result()\n"
@@ -110,13 +117,16 @@ import datetime
                             raise ValueError(f"Unbekannter Target-Typ: {target_type}")
                         if "branch" in target:
                             source_df = "result_" + target["branch"]
-                        elif last_split_branch_names and i < len(last_split_branch_names):
+                        elif last_split_branch_names and i < len(
+                            last_split_branch_names
+                        ):
                             source_df = "result_" + last_split_branch_names[i]
                         else:
                             source_df = "df"
                         template = env.get_template(template_name)
                         rendered = template.render(
-                            step={"target": target, "source_df": source_df}, config=config_file
+                            step={"target": target, "source_df": source_df},
+                            config=config_file,
                         )
                         code_segments.append(rendered)
             else:
@@ -154,22 +164,30 @@ import datetime
             code_segments.append(rendered)
 
         elif step_type == "split":
-            # Process split steps: execute branches concurrently and capture their results
+            # Process split steps: execute branches concurrently
+            # and capture their results
             segment = (
-                "# Split step: Execute branches concurrently and capture their results\n"
+                "# Split step: Execute branches concurrently and "
+                "capture their results\n"
             )
             if step.get("parallel", False):
-                segment += "with ThreadPoolExecutor(max_workers={}) as executor:\n".format(
-                    config_data.get("threads", 1)
+                segment += (
+                    "with ThreadPoolExecutor(max_workers={}) as executor:\n".format(
+                        config_data.get("threads", 1)
+                    )
                 )
                 for branch in step["branches"]:
                     branch_name = branch["name"]
-                    segment += "    future_{0} = executor.submit(branch_{0}, df)\n".format(
-                        branch_name
+                    segment += (
+                        "    future_{0} = executor.submit(branch_{0}, df)\n".format(
+                            branch_name
+                        )
                     )
                 for branch in step["branches"]:
                     branch_name = branch["name"]
-                    segment += "    result_{0} = future_{0}.result()\n".format(branch_name)
+                    segment += "    result_{0} = future_{0}.result()\n".format(
+                        branch_name
+                    )
             else:
                 for branch in step["branches"]:
                     branch_name = branch["name"]
@@ -190,7 +208,8 @@ import datetime
                         template_name = step_templates[sub_step_type]
                         template = env.get_template(template_name)
                         rendered = template.render(step=sub_step, config=config_file)
-                        # Replace occurrences of the global variable 'df' with 'df_local'
+                        # Replace occurrences of the global variable
+                        # 'df' with 'df_local'
                         rendered_local = re.sub(r"\bdf\b", "df_local", rendered)
                         indented = "\n".join(
                             "    " + line for line in rendered_local.splitlines()
@@ -205,11 +224,13 @@ import datetime
                             template_name = step_templates["write_mariadb"]
                         else:
                             raise ValueError(
-                                f"Unknown Target-Typ Branch {branch_name}: {target['type']}"
+                                f"Unknown Target-Typ Branch {branch_name}:"
+                                f" {target['type']}"
                             )
                         template = env.get_template(template_name)
                         rendered = template.render(
-                            step={"target": target, "source_df": "df_local"}, config=config_file
+                            step={"target": target, "source_df": "df_local"},
+                            config=config_file,
                         )
                         indented = "\n".join(
                             "    " + line for line in rendered.splitlines()
@@ -225,7 +246,8 @@ import datetime
         else:
             raise ValueError(f"Unbekannter Verarbeitungsschritt: {step_type}")
 
-    # Create the final code with the preamble, branch functions, and the main() function.
+    # Create the final code with the preamble, branch functions,
+    # and the main() function.
     final_code = ""
     final_code += preamble + "\n"  # Module-level imports first.
     for branch_func in branch_function_defs:
@@ -241,8 +263,10 @@ import datetime
         f.write(final_code)
 
     print(
-        "Python-Code wurde erfolgreich generiert und in 'generated_script.py' gespeichert."
+        "Python-Code wurde erfolgreich generiert und "
+        "in 'generated_script.py' gespeichert."
     )
+
 
 if __name__ == "__main__":
     generate_script()

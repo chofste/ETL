@@ -1,0 +1,4 @@
+department,salary_mean,salary_sum,employee_id_count
+HR,4500.0,4500,1
+IT,6500.0,6500,1
+Sales,5250.0,10500,2
