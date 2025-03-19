@@ -1,0 +1,3 @@
+employee_id,department,age,salary,manager,location
+1001,Sales,35,5000,Alice,New York
+1003,Sales,42,5500,Alice,New York

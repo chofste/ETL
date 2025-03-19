@@ -1,0 +1,110 @@
+{
+  "execution_mode": "hybrid",
+  "threads": 4,
+  "batch_size": 1000,
+  "incremental": false,
+  "bulk_processing": true,
+  "steps": [
+    {
+      "step": "read",
+      "source": {
+        "type": "csv",
+        "filepath": "input_test.csv",
+        "separator": ","
+      }
+    },
+    {
+      "step": "filter",
+      "filter": {
+        "column": "age",
+        "condition": ">",
+        "value": 30
+      }
+    },
+    {
+      "step": "split",
+      "parallel": true,
+      "branches": [
+        {
+          "name": "branch_aggregation",
+          "steps": [
+            {
+              "step": "group",
+              "group": {
+                "column": "department",
+                "aggregation": [
+                  {
+                    "column": "salary",
+                    "function": "mean"
+                  },
+                  {
+                    "column": "salary",
+                    "function": "sum"
+                  },
+                  {
+                    "column": "employee_id",
+                    "function": "count"
+                  }
+                ]
+              }
+            },
+            {
+              "step": "write",
+              "target": {
+                "type": "csv",
+                "filepath": "output_aggregation_test.csv",
+                "separator": ","
+              }
+            }
+          ]
+        },
+        {
+          "name": "branch_transformation",
+          "steps": [
+            {
+              "step": "join",
+              "join": {
+                "with": "departments_test.csv",
+                "on": "department",
+                "separator": ",",
+                "how": "left"
+              }
+            },
+            {
+              "step": "filter",
+              "filter": {
+                "column": "location",
+                "condition": "==",
+                "value": "New York"
+              }
+            },
+            {
+              "step": "write",
+              "target": {
+                "type": "csv",
+                "filepath": "output_transformation_test.csv",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "merge",
+      "merge": {
+        "sources": ["branch_aggregation", "branch_transformation"],
+        "on": "department",
+        "how": "inner"
+      }
+    },
+    {
+      "step": "write",
+      "target": {
+        "type": "csv",
+        "filepath": "output_merged_test.csv",
+        "separator": ","
+      }
+    }
+  ]
+}
