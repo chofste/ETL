@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 import importlib.util
 from core.core import generate_script
+import pandas as pd
 
 TEST_DIR = Path(__file__).parent
 
@@ -30,21 +31,21 @@ class TestPrototypeCore:
         ), f"File {generated_script_file} does not exist"
 
     def test_output_files_exists(self, generated_script_file):
-        module = import_generated_script(generated_script_file)
 
+        # run the generated python script
+        module = import_generated_script(generated_script_file)
         assert hasattr(
             module, "main"
         ), "The generated script does not have a 'main' function"
-
         try:
             module.main()
         except Exception as e:
             pytest.fail(f"Running main() in the generated script failed: {e}")
 
+        # assert that the wanted output_files exist
         file_path_aggregation = TEST_DIR / "output_aggregation_test.csv"
         file_path_transformation = TEST_DIR / "output_transformation_test.csv"
         file_path_merged = TEST_DIR / "output_merged_test.csv"
-
         assert (
             file_path_aggregation.exists()
         ), f"File {file_path_aggregation} does not exist in the test directory"
@@ -54,6 +55,18 @@ class TestPrototypeCore:
         assert (
             file_path_merged.exists()
         ), f"File {file_path_merged} does not exist in the test directory"
+
+        # assert that output files contain expected data
+        df_aggregation_expected = pd.read_csv("output_aggregation_expected.csv")
+        df_transformation_expected = pd.read_csv("output_transformation_expected.csv")
+        df_merged_expected = pd.read_csv("output_merged_expected.csv")
+        df_aggregation_test = pd.read_csv("output_aggregation_test.csv")
+        df_transformation_test = pd.read_csv("output_transformation_test.csv")
+        df_merged_test = pd.read_csv("output_merged_test.csv")
+
+        assert df_aggregation_expected.equals(df_aggregation_test)
+        assert df_transformation_expected.equals(df_transformation_test)
+        assert df_merged_expected.equals(df_merged_test)
 
 
 if __name__ == "__main__":
