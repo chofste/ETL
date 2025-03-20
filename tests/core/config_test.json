@@ -52,7 +52,7 @@
               "step": "write",
               "target": {
                 "type": "csv",
-                "filepath": "output_aggregation_test.csv",
+                "filepath": "tmp/output_aggregation_test.csv",
                 "separator": ","
               }
             }
@@ -82,7 +82,7 @@
               "step": "write",
               "target": {
                 "type": "csv",
-                "filepath": "output_transformation_test.csv",
+                "filepath": "tmp/output_transformation_test.csv",
                 "separator": ","
               }
             }
@@ -102,7 +102,7 @@
       "step": "write",
       "target": {
         "type": "csv",
-        "filepath": "output_merged_test.csv",
+        "filepath": "tmp/output_merged_test.csv",
         "separator": ","
       }
     }

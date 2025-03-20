@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 
 
-def generate_script(config_file: str = "config.json"):
+def generate_script(config_file: str = "config.json", output_dir: str = "./"):
     # Load configuration
     with open(config_file, "r", encoding="utf-8") as f:
         config_data = json.load(f)
@@ -259,12 +259,13 @@ import datetime
             final_code += "    " + line + "\n"
     final_code += "\nif __name__ == '__main__':\n    main()\n"
 
-    with open("generated_script.py", "w", encoding="utf-8") as f:
+    output_name = output_dir + "/generated_script.py"
+    with open(output_name, "w", encoding="utf-8") as f:
         f.write(final_code)
 
     print(
         "Python-Code wurde erfolgreich generiert und "
-        "in 'generated_script.py' gespeichert."
+        "in " + output_name + " gespeichert."
     )
 
 
