@@ -3,13 +3,39 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="./index.css">
+        <link rel="stylesheet" href="./css/main.css">
+        <!-- Removed the missing index.css reference -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <script src="./frameworks/jquery-3.7.1.min.js"></script>
         <!--<script src="./frameworks/socket.io.min.js"></script>-->
         <title>ETL</title>
     </head>
     <body>
-        <h1>ETL</h1>
+        <div id="top-bar-container"></div>
+        
+        <div class="main-content">
+            <!-- Your main application content will go here -->
+        </div>
+        
+        <div id="bottom-bar-container">
+            <!-- This will be dynamically filled with either whiteboard or editor bottom bar -->
+        </div>
     </body>
+    <script src="./js/bottom-bar.js"></script>
     <script src="./index.js"></script>
+    <script>
+        // Load the top bar
+        $(document).ready(function() {
+            $("#top-bar-container").load("./components/top-bar.html", function() {
+                console.log("Top bar loaded successfully");
+            });
+            
+            // Load the whiteboard bottom bar
+            $("#bottom-bar-container").load("./components/whiteboard-bottom-bar.html", function() {
+                console.log("Bottom bar loaded successfully");
+                // Initialize bottom bar after it's loaded
+                initBottomBar();
+            });
+        });
+    </script>
 </html>
