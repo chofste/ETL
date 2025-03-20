@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 
 generated_script.py
+
+.DS_Store

@@ -1,2 +1,2 @@
-# Write the result to a CSV file
-df.to_csv("{{ step.target.filepath }}", sep="{{ step.target.separator }}", index=False)
+{%- if config.concurrent_write -%}{# concurrent write: no extra comment needed #}{%- endif -%}
+{{- step.source_df -}}.to_csv("{{ step.target.filepath }}", sep="{{ step.target.separator }}", index=False)

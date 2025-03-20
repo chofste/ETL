@@ -2,3 +2,4 @@ fastapi
 uvicorn
 jinja2
 pre-commit
+fastapi-socketio
